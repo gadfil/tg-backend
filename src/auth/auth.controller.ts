@@ -1,10 +1,17 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  Get,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-
+  /*
   @Post()
   authenticate(@Body() body: any) {
     const { hash, ...data } = body;
@@ -18,5 +25,11 @@ export class AuthController {
 
     const token = this.authService.generateToken(data.user.id);
     return { token };
+  }
+  */
+
+  @Get('check')
+  check() {
+    return { msg: 'OK' };
   }
 }

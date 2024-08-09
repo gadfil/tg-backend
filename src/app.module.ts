@@ -5,8 +5,9 @@ import { BotModule } from './bot/bot.module';
 import { ClaimModule } from './claim/claim.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { TransactionModule } from './transaction/transaction.module';
+import { AuthModule } from './auth/auth.module';
 import * as process from 'node:process';
 
 @Module({
@@ -15,9 +16,10 @@ import * as process from 'node:process';
     BotModule,
     ClaimModule,
     UserModule,
-    AuthModule,
     /// todo: should crate a database module and settings
     MongooseModule.forRoot(process.env.MONGO_URL, {}),
+    TransactionModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

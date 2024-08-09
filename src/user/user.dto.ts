@@ -1,30 +1,25 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { User } from './user.model';
 
-export class InitDataTGUserDto {
-  @IsNumber()
+export interface InitDataRequest {
+  initData: InitData;
+}
+
+export interface InitData {
+  authDate: string;
+  hash: string;
+  queryId: string;
+  user: InitDataTGUser;
+}
+
+export interface InitDataTGUser {
+  allowsWriteToPm: boolean;
+  firstName: string;
   id: number;
+  languageCode: string;
+  lastName: string;
+  username: string;
+}
 
-  @IsString()
-  first_name?: string;
-
-  @IsString()
-  last_name?: string;
-
-  @IsString()
-  username?: string;
-
-  @IsString()
-  photo_url: string;
-
-  @IsString()
-  language_code?: string;
-
-  @IsBoolean()
-  is_premium: boolean;
-
-  @IsBoolean()
-  is_bot: boolean;
-
-  @IsBoolean()
-  allows_write_to_pm: boolean;
+export class MeResponse {
+  user: User;
 }

@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as process from 'node:process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // app.use(app)
+  app.setGlobalPrefix('api');
+
   app.enableShutdownHooks();
   const config = new DocumentBuilder()
     .setTitle('Cats example')
@@ -12,7 +16,7 @@ async function bootstrap() {
     .addTag('cats')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-  await app.listen(3000);
+  SwaggerModule.setup('swagger', app, document);
+  await app.listen(process.env.PORT);
 }
 bootstrap();

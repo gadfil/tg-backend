@@ -50,18 +50,39 @@ export class UserService {
       .exec();
   }
 
+  async getFriends(id: number) {
+    return await this.userModel
+      .find(
+        { referralId: id },
+        {
+          id: 1,
+          balance: 1,
+          username: 1,
+          firstName: 1,
+          lastName: 1,
+          level: 1,
+          victory: 1,
+          photo_url: 1,
+        },
+      )
+      .sort({ level: -1, victory: -1, inviteCount: -1 })
+      .lean()
+      .exec();
+  }
   getTopUsers() {
     return this.userModel.find().sort({ inviteCount: -1 }).limit(100).exec();
   }
 
   async me(tgUser: InitDataTGUser) {
-    const user = await this.userModel.findOne({ id: tgUser?.id });
+    const user = await this.userModel.findOne({ id: tgUser?.id }).lean().exec();
     console.log('find user', user);
 
     if (!user) {
-      const r = await this.userModel.create(tgUser);
-      console.log(r);
+      const newUser = await this.userModel.create(tgUser);
+      console.log(newUser);
+      return newUser;
     }
+    return user;
   }
 
   async inviteUser(tgUser: InitDataTGUser, referralId: number) {

@@ -52,6 +52,7 @@ export class AuthService {
       ...user,
       balance: Rewards.registrationReward.coin,
       energy: Rewards.registrationReward.energy,
+      referralId: referralId,
       dailyEnergy: Rewards.registrationReward.dailyEnergy,
     });
     await this.transactionService.create({

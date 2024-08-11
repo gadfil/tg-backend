@@ -5,6 +5,7 @@ import {
   Post,
   Headers,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -22,21 +23,30 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('me')
-  getMe(@Headers() headers: any, @Body() body: InitDataRequest) {
-    console.log('------------------');
-    console.log(body);
-    console.log('headers', headers);
-
-    this.userService.me(body?.initData?.user);
+  async getMe(@Headers() headers: any, @Body() body: InitDataRequest) {
+    const user = await this.userService.me(body?.initData?.user);
+    return user;
   }
 
   @Get()
   getHello(): string {
     return 'ok';
   }
-
+  @UseGuards(AuthGuard)
   @Get('top')
-  getTopUsers() {
-    return this.userService.getTopUsers();
+  async getTopUsers() {
+    const result = await this.userService.getTopUsers();
+    console.log('top users');
+    console.log('top users', result);
+    return result;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('friends')
+  async getFriends(@Req() req, @Headers() headers: any) {
+    console.log('tgUser', req?.tgUser);
+    const friends = await this.userService.getFriends(req?.tgUser?.user?.id);
+    console.log(friends);
+    return friends;
   }
 }

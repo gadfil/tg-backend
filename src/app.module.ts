@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { TransactionModule } from './transaction/transaction.module';
 import { AuthModule } from './auth/auth.module';
+import { GameModule } from './game/game.module';
 import * as process from 'node:process';
 
 @Module({
@@ -20,6 +21,7 @@ import * as process from 'node:process';
     MongooseModule.forRoot(process.env.MONGO_URL, {}),
     TransactionModule,
     AuthModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],

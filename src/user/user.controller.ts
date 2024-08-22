@@ -9,19 +9,14 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  validate,
-  parse,
-  type InitDataParsed,
-} from '@telegram-apps/init-data-node';
-import { InitDataRequest } from './user.dto';
+import { InitDataRequest } from './dto/user.dto';
 import { AuthGuard } from '../auth/AuthGuard';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
+  @UseGuards(AuthGuard)
   @Post('me')
   async getMe(@Headers() headers: any, @Body() body: InitDataRequest) {
     const user = await this.userService.me(body?.initData?.user);

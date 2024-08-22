@@ -26,4 +26,4 @@ export class Claim {
 
 export type ClaimDocument = Claim & Document;
 
-export const ClaimSchema = SchemaFactory.createForClass(User);
+export const ClaimSchema = SchemaFactory.createForClass(Claim);

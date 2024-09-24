@@ -41,6 +41,22 @@ export class BotService {
     }
     return `Hey, I'm ${me.first_name}`;
   }
+
+  parseParam(input: string): { ref?: number; code?: string } {
+    let ref: number | undefined;
+    let code: string | undefined;
+    const parts = input.split('_');
+    parts.forEach((v) => {
+      if (v.includes('ref')) {
+        ref = parseInt(v.replace('ref', ''));
+      }
+      if (v.includes('code')) {
+        code = v.replace('code', '');
+      }
+    });
+
+    return { ref, code };
+  }
   @On('web_app_data')
   async onWebAppOpen(@Ctx() ctx: Context) {
     console.log('Mini App Open!!! ');

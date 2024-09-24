@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Request,
+  Body
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -16,17 +17,19 @@ export class AuthController {
   private readonly token: string;
   constructor(private readonly authService: AuthService) {}
   @Post('sign')
-  signIn(@Req() req: any) {
+  signIn(@Req() req: any,  @Body() body: any) {
+    console.log('sign');
     // Extract the Authorization header from the request
-    const [authType, authData = ''] = (req.header('authorization') || '').split(
-      ' ',
-    );
+    const {authData} = body
+    console.log("sign req",body)
 
     // Check if the Authorization type is 'tma'
-    if (authType !== 'tma') {
+    if(!authData) {
+      console.log('sign !tma');
+
       throw new BadRequestException('Invalid authorization type');
     }
 
-    return this.authService.signIn(authType);
+    return this.authService.signIn(authData);
   }
 }

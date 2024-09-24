@@ -1,15 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { calculateInviteRewards, Rewards } from '../config/config';
 import { TransactionType } from '../transaction/transaction.model';
+import { JwtService } from '@nestjs/jwt';
+import { parse, validate } from '@telegram-apps/init-data-node';
+import { ConfigService } from '@nestjs/config';
+import { InitDataTGUser } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly token: string;
+
   constructor(
     private readonly userService: UserService,
     private transactionService: TransactionService,
-  ) {}
+    private jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
+    this.token = this.configService.get('TELEGRAM_BOT_TOKEN');
+  }
 
   /**
    * @param userId
@@ -91,6 +101,29 @@ export class AuthService {
         transactionType: type[update.inviteCount],
         ...Rewards.registrationReward,
       });
+    }
+  }
+  async signIn(authData: any) {
+    // console.log('authData', authData);
+    // console.log('tg token', this.token)
+
+    try {
+     validate(authData, this.token);
+
+      const { user } = parse(authData);
+      // console.log('signservice', user);
+      const me = await this.userService.me(user as InitDataTGUser);
+      const payload = me?.user;
+      // console.log('payload', payload);
+      return {
+        access_token: await this.jwtService.signAsync(payload, {
+          expiresIn:'1h'
+        }),
+      };
+    } catch (e) {
+      // console.log('authData', e);
+
+      throw new UnauthorizedException();
     }
   }
 }

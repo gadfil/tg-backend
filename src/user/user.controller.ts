@@ -6,6 +6,7 @@ import {
   Headers,
   UseGuards,
   Req,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -15,14 +16,20 @@ import { AuthGuard } from '../auth/AuthGuard';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
+
   constructor(private readonly userService: UserService) {}
   @UseGuards(AuthGuard)
   @Post('me')
-  async getMe(@Headers() headers: any, @Body() body: InitDataRequest) {
-    const user = await this.userService.me(body?.initData?.user);
+  async getMe(@Req() req, @Headers() headers: any, @Body() body: any) {
+    
+    const user = await this.userService.me(req?.user);
+    this.logger.log(user);
+    
+    
     return user;
   }
-
+  @UseGuards(AuthGuard)
   @Get()
   getHello(): string {
     return 'ok';

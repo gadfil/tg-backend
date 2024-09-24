@@ -19,6 +19,8 @@ export class Claim {
 
   @Prop({ default: 0, type: Number })
   usdt: number;
+  @Prop({ default: false, type: Boolean })
+  isDaily: boolean;
 
   @Prop({ default: Date.now })
   createdAt: Date;

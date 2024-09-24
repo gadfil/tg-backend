@@ -58,12 +58,77 @@ export class UserService {
   }
 
   async getFriends(id: number) {
-    return await this.userModel
+    const result = await this.userModel.aggregate([
+      {
+        $match: { id }, // Ищем пользователя по id
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'referralId',
+          foreignField: 'id',
+          as: 'inviter', // Найдем пригласившего пользователя
+        },
+      },
+      {
+        $unwind: {
+          path: '$inviter',
+          preserveNullAndEmptyArrays: true, // Сохраняем null, если пригласивший не найден
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'id',
+          foreignField: 'referralId',
+          as: 'friends', // Найдем друзей пользователя
+        },
+      },
+      {
+        $addFields: {
+          friends: {
+            $concatArrays: [
+              {
+                $cond: {
+                  if: { $ne: ['$inviter', null] },
+                  then: ['$inviter'],
+                  else: [],
+                },
+              },
+              '$friends',
+            ],
+          },
+        },
+      },
+      {
+        $unwind: '$friends',
+      },
+      {
+        $sort: {
+          'friends.level': -1,
+          'friends.victory': -1,
+          'friends.inviteCount': -1,
+        },
+      },
+      {
+        $group: {
+          _id: '$id',
+          friends: { $push: '$friends' },
+        },
+      },
+    ]);
+
+    return result[0]?.friends || [];
+  }
+
+  getTopUsers() {
+    return this.userModel
       .find(
-        { referralId: id },
+        {},
         {
           id: 1,
           balance: 1,
+          inviteCount: 1,
           username: 1,
           firstName: 1,
           lastName: 1,
@@ -72,46 +137,24 @@ export class UserService {
           photo_url: 1,
         },
       )
-      .sort({ level: -1, victory: -1, inviteCount: -1 })
+      .sort({ level: -1, victory: -1, balance: -1, inviteCount: -1 })
+      .limit(100)
       .lean()
       .exec();
   }
-  getTopUsers() {
-    return (
-      this.userModel
-        .find(
-          {},
-          {
-            id: 1,
-            balance: 1,
-            inviteCount: 1,
-            username: 1,
-            firstName: 1,
-            lastName: 1,
-            level: 1,
-            victory: 1,
-            photo_url: 1,
-          },
-        )
-        .sort({ level: -1, victory: -1, balance: -1, inviteCount: -1 })
-
-        // .sort({ inviteCount: -1 })
-        .limit(100)
-        .lean()
-        .exec()
-    );
-  }
 
   async me(tgUser: InitDataTGUser): Promise<MeResponse> {
+   
     const user = await this.userModel.findOne({ id: tgUser?.id }).lean().exec();
-    console.log('find user', user);
+    // console.log('find user', user);
 
     if (!user) {
       const newUser = await this.userModel.create(tgUser);
-      console.log(newUser);
+      // console.log(newUser);
       return { user: newUser, payload: { needClaim: true } };
     }
     const needClaim = await this.claimService.checkClaim(user._id);
+    // console.log('needClaim', needClaim);
     return { user, payload: { needClaim: true } };
   }
 

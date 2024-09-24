@@ -10,10 +10,11 @@ import { TransactionModule } from '../transaction/transaction.module';
   imports: [
     MongooseModule.forFeature([{ name: Claim.name, schema: ClaimSchema }]),
     forwardRef(() => UserModule),
-    // forwardRef(() => TransactionModule),
+    forwardRef(() => TransactionModule),
   ],
   providers: [ClaimService],
   controllers: [ClaimController],
+
   exports: [ClaimService],
 })
 export class ClaimModule {}

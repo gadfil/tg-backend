@@ -6,10 +6,21 @@ import { AuthGuard } from '../auth/AuthGuard';
 @Controller('claim')
 export class ClaimController {
   constructor(private readonly claimService: ClaimService) {}
+
+  /**
+   * claim daily reward
+   * @param req
+   */
   @UseGuards(AuthGuard)
-  @Post()
+  @Post('/daily')
   async claim(@Request() req) {
-    const claim = await this.claimService.getClaim(req?.tgUser?.user?.id);
-    return { claim };
+    try {
+      const claim = await this.claimService.getDailyClaim(
+        req?.tgUser?.user?.id,
+      );
+      return { claim };
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 }
